@@ -38,3 +38,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
 ]
+
+# The master toctree document.
+master_doc = 'index'
