@@ -164,6 +164,11 @@ find . -name pom.xml \
     {} \;
 find . -name "*.bak" -exec rm -f {} \;
 
+# run pandoc generation, if .rst is not up-to-date, status check will fail
+cd docs
+./build.sh
+cd ..
+
 if test -n "$(git status --porcelain)"
 then
     echo "Applying move_to_xyz script marred a pom.xml file."

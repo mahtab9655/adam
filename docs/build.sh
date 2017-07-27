@@ -5,6 +5,7 @@ git_version=$(git log -1 --pretty=format:%H)
 output_dir="output"
 pdf_output="$output_dir/ADAM_${git_version}.pdf"
 html_output="$output_dir/ADAM_${git_version}.html"
+rst_output="$output_dir/contents.rst"
 date_str=$(date '+%Y-%m-%d')
 
 mkdir -p ${output_dir}
@@ -20,30 +21,47 @@ if [ $? -ne "0" ]; then
 	exit 0
 fi
 
+# Generate reStructuredText of the docs, for pushing to pandoc
+pandoc -N -t rst \
+       --filter pandoc-citeproc \
+       --highlight-style "$highlight_style" \
+       --variable mainfont="Georgia" \
+       --variable sansfont="Arial" \
+       --variable monofont="Andale Mono" \
+       --variable fontsize=10pt \
+       --variable version=$git_version \
+       --variable listings=true \
+       --variable title="$title" \
+       --variable date="$date" \
+       --variable author="$author" \
+       --toc \
+       --bibliography=source/bibliography.bib \
+       source/*.md -s -S -o $rst_output
+
 # Generate a PDF of the docs
 pandoc -N --template=template.tex \
---filter pandoc-citeproc \
---highlight-style "$highlight_style" \
---variable mainfont="Georgia" \
---variable sansfont="Arial" \
---variable monofont="Andale Mono" \
---variable fontsize=10pt \
---variable version=$git_version \
---variable listings=true \
---variable title="$title" \
---variable date="$date" \
---variable author="$author" \
---toc \
---bibliography=source/bibliography.bib \
-source/*.md -s -S -o $pdf_output
+       --filter pandoc-citeproc \
+       --highlight-style "$highlight_style" \
+       --variable mainfont="Georgia" \
+       --variable sansfont="Arial" \
+       --variable monofont="Andale Mono" \
+       --variable fontsize=10pt \
+       --variable version=$git_version \
+       --variable listings=true \
+       --variable title="$title" \
+       --variable date="$date" \
+       --variable author="$author" \
+       --toc \
+       --bibliography=source/bibliography.bib \
+       source/*.md -s -S -o $pdf_output
 
 # Generate HTML of the docs
 pandoc source/*.md -H style.css -s -S --toc \
---mathjax \
---filter pandoc-citeproc \
---bibliography=source/bibliography.bib \
---highlight-style "$highlight_style" \
---variable title="$title" \
---variable date="$date" \
---variable author="$author" \
--o $html_output
+       --mathjax \
+       --filter pandoc-citeproc \
+       --bibliography=source/bibliography.bib \
+       --highlight-style "$highlight_style" \
+       --variable title="$title" \
+       --variable date="$date" \
+       --variable author="$author" \
+       -o $html_output
